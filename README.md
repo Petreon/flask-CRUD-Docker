@@ -1,16 +1,19 @@
-# flask-CRUD-Docker
-First application using Flask, Postgre, docker and docker-compose
+# Flask-CRUD-Docker
+First CRUD application using Flask, Postgre, docker and docker-compose,
+the application was been tested with postman for the routes and with tableplus
+for the postgre database
 
-# clone the application
+## Clone the application
+- $ git clone https://github.com/Petreon/flask-CRUD-Docker.git
 
-# create the postgre container
+## Create the postgre container
 - $ docker compose up -d flask_db
 
-# build the docker compose
+## Build the docker compose
 - $ docker compose build
 
-# Up the flask application
+## Up the flask application
 - $ docker compose up flask_app
 
-# To rebuild an alteration
+## To rebuild an alteration
 - $ docker compose up --build flask_app

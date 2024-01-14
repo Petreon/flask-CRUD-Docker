@@ -32,9 +32,15 @@ def test():
 def create_user():
     try:
         error = None
-        data = request.get_json()
+        data = None
+        try:
+            data = request.get_json()
+        except:
+            return make_response(jsonify({"message":"didnt send a json"}))
+        
         if "username" not in data or data["username"] is None:
             return make_response(jsonify({"message":"username not send"}),400)
+        
         if "email" not in data or data["email"] is None:
             return make_response(jsonify({"message":"email not send"}),400)
 
@@ -47,10 +53,12 @@ def create_user():
         #app.logger.info("point accessed")
         app.logger.info(user)
         if error is None and user is None:
+
             new_user = User(name = data["username"], email = data["email"]) ## o error está aqui
             db.session.add(new_user)
             db.session.commit()
             return make_response(jsonify({"message": f"User {data['username']} created"}), 201)
+        
         return make_response(jsonify({"message":"User already exists"}),409)
 
     except e: ## e is a global object for handling errors
@@ -81,7 +89,7 @@ def get_user(id):
         return make_response(jsonify({"message": f"cannot query user by id = {id}"}), 500)
     
 #update a user
-@app.route("/users/<int:id>", methods=["POST"])
+@app.route("/users/<int:id>", methods=["PUT"])
 def update_user(id):
     try:
         user = User.query.filter_by(id=id).first()

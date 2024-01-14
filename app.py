@@ -18,7 +18,8 @@ class User(db.Model):
         return {"id":self.id,"username":self.name,"email":self.email}
     
 # i think i need use app.appcontext to use but i will leave now
-db.create_all()
+with app.app_context():
+    db.create_all()
 
 #create a test route
 
@@ -30,12 +31,28 @@ def test():
 @app.route("/users", methods=["POST"])
 def create_user():
     try:
+        error = None
         data = request.get_json()
-        new_user = User(username = data["username"], email = data["email"])
-        db.session.add(new_user)
-        db.session.commit()
-        return make_response(jsonify({"message": f"User {data['username']} created"}), 201)
-    
+        if "username" not in data or data["username"] is None:
+            return make_response(jsonify({"message":"username not send"}),400)
+        if "email" not in data or data["email"] is None:
+            return make_response(jsonify({"message":"email not send"}),400)
+
+        user = User.query.filter_by(name=data["username"]).first()
+        if user:
+            error = "problem"
+        user = User.query.filter_by(email=data["email"]).first()
+        
+        #print(user)
+        #app.logger.info("point accessed")
+        app.logger.info(user)
+        if error is None and user is None:
+            new_user = User(name = data["username"], email = data["email"]) ## o error está aqui
+            db.session.add(new_user)
+            db.session.commit()
+            return make_response(jsonify({"message": f"User {data['username']} created"}), 201)
+        return make_response(jsonify({"message":"User already exists"}),409)
+
     except e: ## e is a global object for handling errors
         return make_response(jsonify({"message":"error creating an user"}), 500)
     
@@ -72,7 +89,7 @@ def update_user(id):
             data = request.get_json()
 
             if data["username"] is not None:
-                user.username = data["username"]
+                user.name = data["username"]
             if data["email"] is not None:
                 user.email = data["email"]
         
